@@ -1,0 +1,360 @@
+{
+  "stages": {
+    "0": {
+      "type": "image",
+      "text": "Какие цели вы хотите достичь с помощью наших программ?",
+      "image": "content/promo/target.png",
+      "keyboard": {
+        "back_button": false,
+        "buttons": {
+          "a": {
+            "text": "🏃Хочу похудеть",
+            "to": "1"
+          },
+          "b": {
+            "text": "💪Хочу набрать вес",
+            "to": "1"
+          },
+          "c": {
+            "text": "🥦Наладить питание",
+            "to": "1"
+          },
+          "d": {
+            "text": "🏋️‍♂️Заняться спортом",
+            "to": "1"
+          }
+        }
+      }
+    },
+    "1": {
+      "type": "image",
+      "text": "Для кого вы ищете программу?",
+      "image": "content/promo/for_whom.png",
+      "keyboard": {
+        "back_button": true,
+        "buttons": {
+          "a": {
+            "text": "👨‍🦱Мужчина",
+            "to": "2"
+          },
+          "b": {
+            "text": "👧Женщина",
+            "to": "2"
+          },
+          "c": {
+            "text": "👫Семья",
+            "if": {
+              "cond": [
+                {
+                  "type": "cond",
+                  "stage": "0",
+                  "equals": "d"
+                }
+              ],
+              "to": "5"
+            },
+            "to": "3"
+          },
+          "d": {
+            "text": "👶Ребёнок",
+            "to": "2"
+          },
+          "e": {
+            "text": "👨‍🦳👩‍🦳Родители",
+            "to": "2"
+          }
+        }
+      }
+    },
+    "2": {
+      "type": "image",
+      "text": "Укажите возраст для кого вы ищете программу?",
+      "image": "content/promo/age.png",
+      "keyboard": {
+        "back_button": true,
+        "buttons": {
+          "a": {
+            "text": "0-3 года",
+            "if": {
+              "cond": [
+                {
+                  "type": "cond",
+                  "stage": "0",
+                  "equals": "d"
+                }
+              ],
+              "to": "5"
+            },
+            "to": "3"
+          },
+          "b": {
+            "text": "4-10 лет",
+            "if": {
+              "cond": [
+                {
+                  "type": "cond",
+                  "stage": "0",
+                  "equals": "d"
+                }
+              ],
+              "to": "5"
+            },
+            "to": "3"
+          },
+          "c": {
+            "text": "11-18 лет",
+            "if": {
+              "cond": [
+                {
+                  "type": "cond",
+                  "stage": "0",
+                  "equals": "d"
+                }
+              ],
+              "to": "5"
+            },
+            "to": "3"
+          },
+          "d": {
+            "text": "19-25 лет",
+            "if": {
+              "cond": [
+                {
+                  "type": "cond",
+                  "stage": "0",
+                  "equals": "d"
+                }
+              ],
+              "to": "5"
+            },
+            "to": "3"
+          },
+          "e": {
+            "text": "26-35 лет",
+            "if": {
+              "cond": [
+                {
+                  "type": "cond",
+                  "stage": "0",
+                  "equals": "d"
+                }
+              ],
+              "to": "5"
+            },
+            "to": "3"
+          },
+          "f": {
+            "text": "36-45 лет",
+            "if": {
+              "cond": [
+                {
+                  "type": "cond",
+                  "stage": "0",
+                  "equals": "d"
+                }
+              ],
+              "to": "5"
+            },
+            "to": "3"
+          },
+          "g": {
+            "text": "46-60 лет",
+            "if": {
+              "cond": [
+                {
+                  "type": "cond",
+                  "stage": "0",
+                  "equals": "d"
+                }
+              ],
+              "to": "5"
+            },
+            "to": "3"
+          },
+          "h": {
+            "text": "60+ лет",
+            "if": {
+              "cond": [
+                {
+                  "type": "cond",
+                  "stage": "0",
+                  "equals": "d"
+                }
+              ],
+              "to": "5"
+            },
+            "to": "3"
+          }
+        }
+      }
+    },
+    "3": {
+      "type": "image",
+      "text": "Как быстро вы хотите достичь результата?",
+      "image": "content/promo/body.png",
+      "keyboard": {
+        "back_button": true,
+        "buttons": {
+          "a": {
+            "text": "1-3 месяца",
+            "to": "4"
+          },
+          "b": {
+            "text": "3-6 месяцев",
+            "to": "4"
+          }
+        }
+      }
+    },
+    "4": {
+      "type": "image",
+      "text": "Для более быстрого достижения ваших целей рекомендуем включить тренировки в свою программу.\nХотели бы вы добавить физические упражнения?",
+      "image": "content/promo/sport.png",
+      "keyboard": {
+        "back_button": true,
+        "buttons": {
+          "a": {
+            "text": "✅Да",
+            "to": "5"
+          },
+          "b": {
+            "text": "❌Нет",
+            "to": "5"
+          }
+        }
+      }
+    },
+    "5": {
+      "type": "image",
+      "text": "Вы предпочитаете заниматься самостоятельно или с полным сопровождением ментора? \nПо статистике, с ментором результаты достигаются быстрее и качественнее, благодаря индивидуальному подходу и постоянной поддержке.",
+      "image": "content/promo/mentor.png",
+      "keyboard": {
+        "back_button": true,
+        "buttons": {
+          "a": {
+            "text": "👩‍🏫Хочу заниматься с ментором",
+            "to": "a"
+          },
+          "b": {
+            "text": "🧘‍♀️Буду заниматься самостоятельно",
+            "to": "6"
+          }
+        }
+      }
+    },
+    "6": {
+      "type": "image",
+      "text": "Хотели бы вы получить дополнительную онлайн-консультацию с ментором?\nОна даст возможность уточнить любые детали, \nа также разъяснить план действий для достижения желаемых результатов.",
+      "image": "content/promo/online.png",
+      "keyboard": {
+        "back_button": true,
+        "buttons": {
+          "a": {
+            "text": "✅Да",
+            "to": "b"
+          },
+          "b": {
+            "text": "❌Нет",
+            "to": "c"
+          }
+        }
+      }
+    },
+    "a": {
+      "type": "product",
+      "product":
+      {
+        "title": "ЗОЖ Питание + Спорт Maximum",
+        "description": "На основе ваших предпочтений мы рекомендуем вам эту программу",
+        "price": 50,
+        "image_url": "https://media.istockphoto.com/id/1366052585/photo/shot-of-a-group-of-friends-hanging-out-before-working-out-together.jpg?s=612x612&w=0&k=20&c=rj7LgjUuXde0eLWikS1rvDnsKDdBotgsy9eM5HDzko0="
+      },
+      "text": "ЗОЖ Питание + Спорт Maximum",
+      "image": "content/programs/sport_maximum.png",
+      "keyboard": {
+        "back_button": true,
+        "buttons": {}
+      }
+    },
+    "b": {
+      "type": "product",
+      "product":
+      {
+        "title": "ЗОЖ Питание Maximum",
+        "description": "На основе ваших предпочтений мы рекомендуем вам эту программу",
+        "price": 40,
+        "image_url": "https://media.istockphoto.com/id/1366052585/photo/shot-of-a-group-of-friends-hanging-out-before-working-out-together.jpg?s=612x612&w=0&k=20&c=rj7LgjUuXde0eLWikS1rvDnsKDdBotgsy9eM5HDzko0="
+      },
+      "text": "ЗОЖ Питание Maximum",
+      "image": "content/programs/food_maximum.png",
+      "keyboard": {
+        "back_button": true,
+        "buttons": {}
+      }
+    },
+    "c": {
+      "type": "product",
+      "product":
+      {
+        "title": "ЗОЖ Питание + Спорт Standard",
+        "description": "На основе ваших предпочтений мы рекомендуем вам эту программу",
+        "price": 30,
+        "image_url": "https://media.istockphoto.com/id/1366052585/photo/shot-of-a-group-of-friends-hanging-out-before-working-out-together.jpg?s=612x612&w=0&k=20&c=rj7LgjUuXde0eLWikS1rvDnsKDdBotgsy9eM5HDzko0="
+      },
+      "text": "ЗОЖ Питание + Спорт Standard",
+      "image": "content/programs/sport_standard.png",
+      "keyboard": {
+        "back_button": true,
+        "buttons": {}
+      }
+    },
+    "d": {
+      "type": "product",
+      "product":
+      {
+        "title": "ЗОЖ Питание Standard",
+        "description": "На основе ваших предпочтений мы рекомендуем вам эту программу",
+        "price": 20,
+        "image_url": "https://media.istockphoto.com/id/1366052585/photo/shot-of-a-group-of-friends-hanging-out-before-working-out-together.jpg?s=612x612&w=0&k=20&c=rj7LgjUuXde0eLWikS1rvDnsKDdBotgsy9eM5HDzko0="
+      },
+      "text": "ЗОЖ Питание Standard",
+      "image": "content/programs/food_standard.png",
+      "keyboard": {
+        "back_button": true,
+        "buttons": {}
+      }
+    },
+    "e": {
+      "type": "product",
+      "product":
+      {
+        "title": "ЗОЖ Питание + Спорт Lite",
+        "description": "На основе ваших предпочтений мы рекомендуем вам эту программу",
+        "price": 10,
+        "image_url": "https://media.istockphoto.com/id/1366052585/photo/shot-of-a-group-of-friends-hanging-out-before-working-out-together.jpg?s=612x612&w=0&k=20&c=rj7LgjUuXde0eLWikS1rvDnsKDdBotgsy9eM5HDzko0="
+      },
+      "text": "ЗОЖ Питание + Спорт Lite",
+      "image": "content/programs/sport_lite.png",
+      "keyboard": {
+        "back_button": true,
+        "buttons": {}
+      }
+    },
+    "f": {
+      "type": "product",
+      "product":
+      {
+        "title": "ЗОЖ Питание Lite",
+        "description": "На основе ваших предпочтений мы рекомендуем вам эту программу",
+        "price": 5,
+        "image_url": "https://github.com/BagrKonstantin/etna/blob/master/src/content/programs/food_lite.png"
+      },
+      "text": "ЗОЖ Питание Lite",
+      "image": "https://media.istockphoto.com/id/1366052585/photo/shot-of-a-group-of-friends-hanging-out-before-working-out-together.jpg?s=612x612&w=0&k=20&c=rj7LgjUuXde0eLWikS1rvDnsKDdBotgsy9eM5HDzko0=",
+      "keyboard": {
+        "back_button": true,
+        "buttons": {}
+      }
+    }
+  }
+}

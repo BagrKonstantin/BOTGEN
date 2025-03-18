@@ -1,0 +1,40 @@
+{
+  "first": {
+    "if": {
+      "cond": [
+        {
+          "type": "cond",
+          "stage": "0",
+          "equals": "d"
+        },
+        {
+          "type": "op",
+          "op": "and"
+        },
+        {
+          "type": "cond",
+          "stage": "1",
+          "equals": "d"
+        }
+      ],
+      "to": "3"
+    },
+    "to": "2"
+  },
+  "second": {
+    "if": {
+    "cond": [
+        {
+          "type": "cond",
+          "stage": "0",
+          "equals": "a"
+        }
+      ],
+      "to": "2"
+    },
+    "to": "1"
+  },
+  "third": {
+    "to": "2"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "stages":
+          [
+            {
+              "name": "StartStage",
+              "text": "",
+              "keyboard":
+                      [
+                        {
+                          "button_text": "",
+                          "to_stage": "FinalStage"
+                        }
+                      ]
+            }
+          ]
+}
