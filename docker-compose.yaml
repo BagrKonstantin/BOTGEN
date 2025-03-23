@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+ user-db:
+    image: postgres:13.3
+    environment:
+      POSTGRES_DB: UserData
+      POSTGRES_USER: ${POSTGRESQL_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./Database/init/:/docker-entrypoint-initdb.d/
+      - ./Database/db/:/var/lib/postgresql/data

@@ -1,3 +1,4 @@
+import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, LabeledPrice
 
 from Callback import Callback
@@ -5,7 +6,6 @@ from graph.encrypter import get_char
 
 
 class AbstractStage:
-    bot = None
     def __init__(self, stage: int, keyboard):
         self.stage = stage
         self.back_button = keyboard["back_button"]
@@ -14,7 +14,7 @@ class AbstractStage:
             self.buttons.append((option, button["text"]))
 
 
-    def send(self, callback: Callback):
+    def send(self, callback: Callback, bot: telebot.TeleBot):
         pass
 
 
@@ -51,14 +51,14 @@ class ImageStage(AbstractStage):
         self.text = data["text"]
         self.image = data["image"]
 
-    def send(self, callback: Callback):
-        self.bot.send_photo(
+    def send(self, callback: Callback, bot: telebot.TeleBot):
+        bot.send_photo(
             chat_id=callback.chat_id,
             photo=open(self.image, "rb"),
             caption=self.text,
             reply_markup=self.make_keyboard(callback),
         )
-        AbstractStage.bot.delete_message(callback.chat_id, callback.mes_id)
+        bot.delete_message(callback.chat_id, callback.mes_id)
 
 
 class ProductStage(AbstractStage):
@@ -69,7 +69,7 @@ class ProductStage(AbstractStage):
         self.price = data["product"]["price"]
         self.image_url = data["product"]["image_url"]
 
-    def send(self, callback: Callback):
+    def send(self, callback: Callback, bot: telebot.TeleBot):
         prices = [
             LabeledPrice(label="XTR", amount=self.price)
         ]
@@ -79,7 +79,7 @@ class ProductStage(AbstractStage):
         keyboard = InlineKeyboardMarkup()
         keyboard.add(InlineKeyboardButton(text=f"Оплатить {self.price} XTR", pay=True))
         keyboard.add(InlineKeyboardButton(text="Назад", callback_data=button_callback))
-        self.bot.send_invoice(
+        bot.send_invoice(
             chat_id=callback.chat_id,
             title=self.title,
             description=self.description,
@@ -95,4 +95,4 @@ class ProductStage(AbstractStage):
             # need_email=True,
             # need_shipping_address=True
         )
-        self.bot.delete_message(callback.chat_id, callback.mes_id)
+        bot.delete_message(callback.chat_id, callback.mes_id)
