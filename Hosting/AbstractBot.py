@@ -23,7 +23,13 @@ class AbstractBot:
         callback = Callback(chat_id, mes_id, "0000000000000000000000000000000000000000000000000000000000000000")
         node.stager.send(callback, self.bot)
 
+    def stop(self):
+        self.bot.stop_bot()
+        print("STOPPED")
+
     def run(self):
         self.bot.register_callback_query_handler(callback=self.callback_query, func=lambda x: x)
         self.bot.register_message_handler(callback=self.send_message, content_types=["text"])
+        print("STARTED")
         self.bot.infinity_polling()
+

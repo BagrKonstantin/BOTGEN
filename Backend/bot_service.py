@@ -2,13 +2,17 @@ from telebot import TeleBot
 import os
 import random
 import string
-
+from sqlalchemy.engine import URL
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from models import User
 
-TELEGRAM_TOKEN = os.environ['TOKEN']
+
+env = os.environ
+TELEGRAM_TOKEN = env['TOKEN']
+
 bot = TeleBot(token=TELEGRAM_TOKEN)
-
-data = {"bagrkonstantin": 171303452}
 
 
 def make_keyboard(token: str):
@@ -19,13 +23,10 @@ def make_keyboard(token: str):
     return keyboard
 
 
-def send_auth_request(username: str):
-    user_id = data[username]
+def send_auth_request(users: list[User]):
+    for user in users:
+        token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(40))
+        keyboard = make_keyboard(token)
 
-    token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(40))
-    keyboard = make_keyboard(token)
-
-    bot.send_message(user_id, "Новый запрос на авторизацию.\nЕсли это вы - нажмите 'Авторизоваться'.",
-                     reply_markup=keyboard)
-
-    return token
+        bot.send_message(user.tel_id, "Новый запрос на авторизацию.\nЕсли это вы - нажмите 'Авторизоваться'.",
+                         reply_markup=keyboard)
