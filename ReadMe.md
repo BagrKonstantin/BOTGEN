@@ -1,7 +1,3 @@
-Sure! Here's a clean and informative `README.md` for your project:
-
----
-
 # BotGen – Telegram Bot Constructor
 
 Easily create and deploy Telegram bots using a minimalistic interface. No coding required.
@@ -44,5 +40,3 @@ This will spin up all necessary services (frontend, backend, database, etc.) aut
 ## 💬 Contact
 
 Feel free to reach out via the Telegram for help, questions, or feedback: [@bagrkonstantin](https://t.me/bagrkonstantin)
-
----
