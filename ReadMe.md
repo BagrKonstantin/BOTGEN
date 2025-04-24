@@ -13,7 +13,7 @@ Easily create and deploy Telegram bots using a minimalistic interface. No coding
 - Add text, images, and customizable keyboards
 - Set up buttons and connect them to stages
 - Host and manage your bots from a single platform
-- Accept payments via Telegram Stars (optional)
+- Accept payments via Telegram Stars
 
 ## 🧱 Tech Stack
 
