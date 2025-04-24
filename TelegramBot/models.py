@@ -19,3 +19,4 @@ class Subscription(Base):
     user_id = Column(Integer())
     start_date = Column(DateTime())
     expiration_date = Column(DateTime())
+

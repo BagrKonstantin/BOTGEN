@@ -1,14 +1,19 @@
-# Test your FastAPI endpoints
+## Test your FastAPI endpoints
+#
+#GET http://127.0.0.1:8000/
+#Accept: application/json
+#
+####
+#
+#GET http://127.0.0.1:8000/hello/User
+#Accept: application/json
+#
+####
+#@username = bagrkonstantin
+#
+#POST http://127.0.0.1:8000/login/{{username}}
+####
+#GET http://127.0.0.1:8000/get-all-product-types/22
+#Accept: application/json
 
-GET http://127.0.0.1:8000/
-Accept: application/json
-
-###
-
-GET http://127.0.0.1:8000/hello/User
-Accept: application/json
-
-###
-@username = bagrkonstantin
-
-POST http://127.0.0.1:8000/login/{{username}}
+POST 127.0.0.1:8000/la

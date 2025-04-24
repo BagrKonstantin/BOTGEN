@@ -1,8 +1,7 @@
-import telebot
+from telebot.async_telebot import AsyncTeleBot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, LabeledPrice
 
-from Callback import Callback
-from graph.encrypter import get_char
+from utils.Callback import Callback
 
 
 class AbstractStage:
@@ -14,27 +13,24 @@ class AbstractStage:
             self.buttons.append((option, button["text"]))
 
 
-    def send(self, callback: Callback, bot: telebot.TeleBot):
+    async def send(self, callback: Callback, bot: AsyncTeleBot):
         pass
 
 
     def make_keyboard(self, callback: Callback) -> InlineKeyboardMarkup:
         keyboard = InlineKeyboardMarkup()
-        stage = get_char(self.stage)
         for option, text in self.buttons:
-            callback.data[self.stage] = option
-            button_callback = stage + "".join(callback.data)
-            print("----", button_callback)
+            button_callback = callback.get_callback_string(self.stage, option)
             keyboard.add(InlineKeyboardButton(text=text, callback_data=button_callback))
-        if stage != '0':
-            callback.data[self.stage] = "~"
-            button_callback = stage + "".join(callback.data)
-            print("----", button_callback)
+        if self.back_button and self.stage != 0:
+            button_callback = callback.get_callback_string(self.stage, '~')
             keyboard.add(InlineKeyboardButton(text="◀️Назад", callback_data=button_callback))
         return keyboard
 
     @staticmethod
     def get_stage(stage: int, data):
+        if data["type"] == "text":
+            return TextStage(stage, data)
         if data["type"] == "image":
             return ImageStage(stage, data)
         if data["type"] == "product":
@@ -44,6 +40,15 @@ class AbstractStage:
 class TextStage(AbstractStage):
     def __init__(self, stage, data):
         super().__init__(stage, data["keyboard"])
+        self.text = data["text"]
+
+    async def send(self, callback: Callback, bot: AsyncTeleBot):
+        await bot.send_message(
+            chat_id=callback.chat_id,
+            text=self.text,
+            reply_markup=self.make_keyboard(callback),
+        )
+        await bot.delete_message(callback.chat_id, callback.mes_id)
 
 class ImageStage(AbstractStage):
     def __init__(self, stage, data):
@@ -51,14 +56,14 @@ class ImageStage(AbstractStage):
         self.text = data["text"]
         self.image = data["image"]
 
-    def send(self, callback: Callback, bot: telebot.TeleBot):
-        bot.send_photo(
+    async def send(self, callback: Callback, bot: AsyncTeleBot):
+        await bot.send_photo(
             chat_id=callback.chat_id,
-            photo=open(self.image, "rb"),
+            photo=self.image,
             caption=self.text,
             reply_markup=self.make_keyboard(callback),
         )
-        bot.delete_message(callback.chat_id, callback.mes_id)
+        await bot.delete_message(callback.chat_id, callback.mes_id)
 
 
 class ProductStage(AbstractStage):
@@ -67,32 +72,30 @@ class ProductStage(AbstractStage):
         self.title = data["product"]["title"]
         self.description = data["product"]["description"]
         self.price = data["product"]["price"]
-        self.image_url = data["product"]["image_url"]
+        if "image_url" in data["product"]:
+            self.image_url = data["product"]["image_url"]
 
-    def send(self, callback: Callback, bot: telebot.TeleBot):
+    async def send(self, callback: Callback, bot: AsyncTeleBot):
         prices = [
             LabeledPrice(label="XTR", amount=self.price)
         ]
-        callback.data[self.stage] = "~"
-        stage = get_char(self.stage)
-        button_callback = stage + "".join(callback.data)
+
+
         keyboard = InlineKeyboardMarkup()
         keyboard.add(InlineKeyboardButton(text=f"Оплатить {self.price} XTR", pay=True))
-        keyboard.add(InlineKeyboardButton(text="Назад", callback_data=button_callback))
-        bot.send_invoice(
+        if self.back_button:
+            button_callback = callback.get_callback_string(self.stage, '~')
+            keyboard.add(InlineKeyboardButton(text="Назад", callback_data=button_callback))
+        await bot.send_invoice(
             chat_id=callback.chat_id,
             title=self.title,
             description=self.description,
             prices=prices,
             provider_token="",
-            invoice_payload="channel_support",
+            invoice_payload=self.title,
             currency="XTR",
             reply_markup=keyboard,
-            photo_url=self.image_url
+            # photo_url=self.image_url TODO
 
-            # need_name=True,
-            # need_phone_number=True,
-            # need_email=True,
-            # need_shipping_address=True
         )
-        bot.delete_message(callback.chat_id, callback.mes_id)
+        await bot.delete_message(callback.chat_id, callback.mes_id)

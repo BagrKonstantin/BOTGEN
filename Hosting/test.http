@@ -1,6 +1,6 @@
 ### Start bot
-POST http://127.0.0.1:8000/launch/1
+POST http://127.0.0.1:8080/launch/22
 ### Stop bot
-POST http://127.0.0.1:8000/stop/1
+POST http://127.0.0.1:8080/stop/22
 ### Login
 POST http://127.0.0.1:8000/login/bagrkonstantin

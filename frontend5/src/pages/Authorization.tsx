@@ -1,0 +1,97 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+
+import { API_BASE_URL, endpoints } from '../config/api';
+import { useAuthStore } from '../store/authStore';
+
+export default function Authorization() {
+  const [username, setUsername] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { setTemporalToken, setAccessToken, temporalToken } = useAuthStore();
+  const hasLoggedIn = useRef(false);
+
+  const handleLogin = async (user) => {
+    try {
+      console.log(user);
+      setIsLoading(true);
+      const response = await fetch(`${API_BASE_URL}${endpoints.login(user)}`, {
+        method: 'POST',
+          })
+
+      const data = await response.json();
+      setTemporalToken(data.token);
+    } catch (error) {
+      console.error('Login error:', error);
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    const urlUsername = searchParams.get('username');
+    if (urlUsername && !hasLoggedIn.current) {
+      hasLoggedIn.current = true;
+      setUsername(urlUsername);
+      handleLogin(urlUsername);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (temporalToken) {
+      interval = setInterval(async () => {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}${endpoints.checkLoginStatus(temporalToken)}`
+          );
+          const data = await response.json();
+          if (data.access_token) {
+            setAccessToken(data.access_token, data.token_type);
+            navigate('/bots');
+          }
+        } catch (error) {
+          console.error('Status check error:', error);
+          setIsLoading(false);
+        }
+      }, 2000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [temporalToken, navigate, setAccessToken]);
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-md w-96">
+        <h1 className="text-2xl font-bold mb-6 text-center">BotGen Login</h1>
+        <div className="space-y-4">
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => {
+              const value = e.target.value;
+              setUsername(value);
+              // if (value.startsWith('@') || value === '') {
+              //   setUsername(value);
+              // } else {
+              //   setUsername('@' + value);
+              // }
+            }}
+            placeholder="@username"
+            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            onClick={(e) => {
+
+            handleLogin(username);
+          }}
+            disabled={isLoading || !username}
+            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 disabled:bg-blue-300"
+          >
+            {isLoading ? 'Checking...' : 'Login'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

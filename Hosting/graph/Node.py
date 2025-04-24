@@ -1,5 +1,5 @@
 from graph.Stages import AbstractStage
-from graph.encrypter import get_number
+from utils.encrypter import get_number
 
 
 
@@ -11,4 +11,6 @@ class Node:
 
 
     def get_next_node(self, callback):
-        return self.cond_next[callback.get_option(self.stage)](callback)
+        func = self.cond_next[callback.get_option(self.stage)]
+        res = func(callback)
+        return res

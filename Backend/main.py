@@ -1,52 +1,54 @@
+import asyncio
+from contextlib import asynccontextmanager
+
+import uvicorn
 from fastapi import FastAPI
-from bot_service import send_auth_request
-from pydantic import BaseModel
-from sqlalchemy.engine import URL
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-import os
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import Depends
 
-from models import User
+from config import session
+from routes import auth, bots, products
+from services.auth_service import verify_token
+from services.listener_service import start_consumer
 
-env = os.environ
-TELEGRAM_TOKEN = env['TOKEN']
-POSTGRESQL_USERNAME = env['POSTGRESQL_USERNAME']
-POSTGRESQL_PASSWORD = env['POSTGRESQL_PASSWORD']
-POSTGRESQL_HOST = env['POSTGRESQL_HOST']
+@asynccontextmanager
+async def lifespan(fastapp: FastAPI):
+    task = asyncio.create_task(start_consumer())
+    yield
+    await session.close()
+    task.cancel()
 
-url = URL.create(
-    drivername="postgresql",
-    username=POSTGRESQL_USERNAME,
-    host=POSTGRESQL_HOST,
-    database="postgres",
-    password=POSTGRESQL_PASSWORD
+app = FastAPI(
+    dependencies=[Depends(verify_token)],
+    lifespan=lifespan
 )
-engine = create_engine(url)
-Session = sessionmaker(bind=engine)
-session = Session()
-app = FastAPI()
+
+# app.add_middleware(
+#     CORSMiddleware,
+#     # allow_origin_regex="http://localhost:5173/*",
+#     allow_origin_regex="http://*",
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+#
+# )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
+
+app.include_router(auth.router)
+app.include_router(bots.router)
+app.include_router(products.router)
 
 
-@app.post("/login/{username}")
-async def request_login(username: str):
-    username = username.lower()
-    users = session.query(User).filter(User.username == username).all()
-    send_auth_request(users)
-    return {"message": f"Go to telegram and accept"}
 
-class TelegramRequest(BaseModel):
-    token: str
-    user_id: int
 
-@app.post("/telebot-auth-accepted")
-def auth_user(data: TelegramRequest):
-    print(data)
-    return "All fine"
-
-@app.post("/telebot-auth-rejected")
-def auth_user(data: TelegramRequest):
-    print(data)
-
-`
-
+# if __name__ == '__main__':
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
+#     asyncio.run(start_consumer())
+#     print("gag")
 

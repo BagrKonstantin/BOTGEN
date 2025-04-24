@@ -1,15 +1,90 @@
 version: "3"
 
 services:
- user-db:
+  user-db:
     image: postgres:13.3
     environment:
       POSTGRES_DB: UserData
       POSTGRES_USER: ${POSTGRESQL_USERNAME}
       POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
       PGDATA: "/var/lib/postgresql/data/pgdata"
+    restart: unless-stopped
     ports:
       - "5432:5432"
     volumes:
       - ./Database/init/:/docker-entrypoint-initdb.d/
       - ./Database/db/:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - ./RabbitMQ:/var/lib/rabbitmq
+
+  backend:
+    build:
+      context: ./Backend
+    container_name: backend_service
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    env_file:
+      - .env
+    environment:
+      POSTGRESQL_HOST: user-db
+      RABBITMQ_HOST: rabbitmq
+      HOSTING_HOST: hosting
+    volumes:
+      - ./Backend:/app
+    ports:
+      - "8000:8000"
+#    restart: unless-stopped
+
+  hosting:
+    build:
+      context: ./Hosting
+    container_name: hosting_service
+    command: uvicorn main:app --host 0.0.0.0 --port 8080
+    env_file:
+      - .env
+    environment:
+      POSTGRESQL_HOST: user-db
+      RABBITMQ_HOST: rabbitmq
+    volumes:
+      - ./Hosting:/app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-db
+      - rabbitmq
+  #    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend5
+      dockerfile: Dockerfile
+    environment:
+      VITE_API_URL: 45.9.75.13
+    ports:
+      - "80:80"  # Nginx serves on 80, exposed to 3000
+    depends_on:
+      - backend
+
+  telegrambot:
+    build:
+      context: ./TelegramBot
+    container_name: telegrambot_service
+    command: python main.py
+    env_file:
+      - .env
+    environment:
+      POSTGRESQL_HOST: user-db
+      RABBITMQ_HOST: rabbitmq
+    volumes:
+      - ./TelegramBot:/app
+#    restart: always

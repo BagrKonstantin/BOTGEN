@@ -1,7 +1,5 @@
 pytelegrambotapi~=4.21.0
 requests~=2.32.3
-uvicorn
-fastapi
 sqlalchemy
 asyncpg
 aio_pika
