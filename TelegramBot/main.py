@@ -23,7 +23,7 @@ data = {}
 
 def make_start_keyboard(username: str) -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup()
-    keyboard.add(InlineKeyboardButton(text="Access your account", url=f"http://45.9.75.13/?username={username}"))
+    keyboard.add(InlineKeyboardButton(text="Access your account", url=f"http://185.128.107.147/?username={username}"))
     keyboard.add(InlineKeyboardButton(text="My subscription", callback_data="subscription"))
     return keyboard
 
