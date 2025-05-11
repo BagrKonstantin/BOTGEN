@@ -1,11 +1,11 @@
-const api_host = "185.128.107.147"
+const api_host = "botgen-constructor.ru/api"
 
-export const API_BASE_URL = `http://${api_host}:8000`;
+export const API_BASE_URL = `https://${api_host}`;
 
 export const endpoints = {
   login: (username: string) => `/login/${username}`,
   checkLoginStatus: (token: string) => `/is-login-approved/${token}`,
-  refreshToken: '/refresh_token',
+  refreshToken: '/refresh-token',
   allBots: '/all-bots',
   newBot: (botToken: string) => `/new-bot/${botToken}`,
   deleteBot: (botId: number) => `/delete-bot/${botId}`,

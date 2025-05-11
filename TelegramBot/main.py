@@ -2,20 +2,15 @@ import asyncio
 import json
 import logging
 from datetime import datetime, timedelta
-from telebot.apihelper import ApiException
 
-from sqlalchemy import create_engine
 from telebot.async_telebot import AsyncTeleBot
-import os
-from sqlalchemy.engine import URL
 from telebot.asyncio_helper import ApiTelegramException
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, LabeledPrice, CallbackQuery, PreCheckoutQuery
-from sqlalchemy.orm import sessionmaker
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, LabeledPrice, CallbackQuery
 
-from models import User, Subscription
-from sender_service import AsyncRabbitSender
+from src.models import User, Subscription
+from src.sender_service import AsyncRabbitSender
 
-from config import TELEGRAM_TOKEN, session
+from src.config import TELEGRAM_TOKEN, session, DOMAIN, SUBSCRIPTION_PRICE
 
 bot = AsyncTeleBot(token=TELEGRAM_TOKEN)
 
@@ -23,11 +18,11 @@ data = {}
 
 def make_start_keyboard(username: str) -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup()
-    keyboard.add(InlineKeyboardButton(text="Access your account", url=f"http://185.128.107.147/?username={username}"))
+    keyboard.add(InlineKeyboardButton(text="Access your account", url=f"{DOMAIN}/?username={username}"))
     keyboard.add(InlineKeyboardButton(text="My subscription", callback_data="subscription"))
     return keyboard
 
-def make_sub_keyboard(tel_id):
+def make_sub_keyboard():
     keyboard = InlineKeyboardMarkup()
     keyboard.add(InlineKeyboardButton(text="Refresh", callback_data="refresh"))
     keyboard.add(InlineKeyboardButton(text="Purchase", callback_data="purchase"))
@@ -47,12 +42,12 @@ async def start_handler(message: Message):
     session.commit()
     await bot.send_message(
         tel_id,
-        text=f"""Hello! 👋 Welcome to BotGen – your easy tool for creating Telegram bots without any programming knowledge. 
-To get started, simply visit our web platform where you can design your bot and deploy it in no time! 🌐
+        text=f"""Hello\! 👋 Welcome to *BotGen* – your easy tool for creating Telegram bots without any programming knowledge\. 
+To get started, simply visit our [web platform](https://botgen-constructor.ru) where you can design your bot and deploy it in no time\! 🌐
 
-To access your account, use username @{username} or click button below.
-Let’s build your bot together! 💡
-""", reply_markup=make_start_keyboard(username)
+To access your account, use username \@{username} or click button below\.
+Let’s build your bot together\! 💡
+""", reply_markup=make_start_keyboard(username), parse_mode="MarkdownV2"
     )
 
 def get_subscription(tel_id):
@@ -69,7 +64,7 @@ Status: {"Active✅" if subscription else "Inactive❌"}
 
 async def send_invoice(tel_id):
     prices = [
-        LabeledPrice(label="XTR", amount=1)
+        LabeledPrice(label="XTR", amount=SUBSCRIPTION_PRICE)
     ]
     await bot.send_invoice(
         chat_id=tel_id,
@@ -98,14 +93,14 @@ Stay focused on building, we’ll handle the hosting.""",
 @bot.callback_query_handler(func=lambda call: call.data == "subscription")
 async def auth_query(call: CallbackQuery):
     subscription = get_subscription(call.from_user.id)
-    await bot.send_message(call.from_user.id,make_subscription_message(subscription), reply_markup=make_sub_keyboard(call.from_user.id))
+    await bot.send_message(call.from_user.id,make_subscription_message(subscription), reply_markup=make_sub_keyboard())
     await bot.answer_callback_query(call.id)
 
 @bot.callback_query_handler(func=lambda call: call.data == "refresh")
 async def refresh_query(call: CallbackQuery):
     subscription = get_subscription(call.from_user.id)
     try:
-        await bot.edit_message_text(chat_id=call.from_user.id, message_id=call.message.message_id, text=make_subscription_message(subscription), reply_markup=make_sub_keyboard(call.from_user.id))
+        await bot.edit_message_text(chat_id=call.from_user.id, message_id=call.message.message_id, text=make_subscription_message(subscription), reply_markup=make_sub_keyboard())
     except ApiTelegramException:
         pass
     await bot.answer_callback_query(call.id, "Refreshed")
@@ -139,7 +134,7 @@ async def hosting_checkout_handler(query):
     session.commit()
     await bot.answer_pre_checkout_query(query.id, True)
     logging.info(f"User {user.user_id}, with tel_id: {tel_id} purchased subscription for month")
-    await bot.send_message(query.from_user.id,make_subscription_message(subscription), reply_markup=make_sub_keyboard(query.from_user.id))
+    await bot.send_message(query.from_user.id,make_subscription_message(subscription), reply_markup=make_sub_keyboard())
 
 
 

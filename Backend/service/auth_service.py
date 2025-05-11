@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta
-from jose import jwt, ExpiredSignatureError
-from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-from fastapi import Depends, HTTPException, Request, status
+
+from fastapi import HTTPException, Request
+from jose import ExpiredSignatureError
 from jose import jwt, JWTError
 
-from schemas.models import Bot
+from utils.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from utils.models import Bot
 
 
 def get_token(authorization) -> str:
@@ -46,7 +47,7 @@ def refresh_token(authorization: str) -> str:
     return new_token
 
 def verify_token(request: Request):
-    excluded_paths = ["/login/", "/is-login-approved/", "/telebot-auth-accepted", "/refresh-token", "/get-image"]
+    excluded_paths = ["/api/login/", "/api/is-login-approved/", "/api/refresh-token", "/api/get-image"]
     for path in excluded_paths:
         if request.url.path.startswith(path):
             return

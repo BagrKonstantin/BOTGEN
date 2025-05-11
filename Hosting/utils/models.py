@@ -1,10 +1,8 @@
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import declarative_base
-from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean
 from sqlalchemy.dialects.postgresql import JSON
-
-
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 

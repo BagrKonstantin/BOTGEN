@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { API_BASE_URL, endpoints } from '../config/api';
 import { useAuthStore } from '../store/authStore';
+import {AlertCircle} from "lucide-react";
 
 export default function Authorization() {
   const [username, setUsername] = useState('');
@@ -11,6 +12,9 @@ export default function Authorization() {
   const [searchParams] = useSearchParams();
   const { setTemporalToken, setAccessToken, temporalToken } = useAuthStore();
   const hasLoggedIn = useRef(false);
+  const [error, setError] = useState<string | null>(null);
+  const [telegram, setTelegram] = useState<string | null>(null);
+
 
   const handleLogin = async (user) => {
     try {
@@ -18,10 +22,18 @@ export default function Authorization() {
       setIsLoading(true);
       const response = await fetch(`${API_BASE_URL}${endpoints.login(user)}`, {
         method: 'POST',
-          })
+      })
+
+      if (!response.ok) {
+        setError((await response.json()).detail);
+        setIsLoading(false);
+      } else {
+        setError(null)
+      }
 
       const data = await response.json();
       setTemporalToken(data.token);
+      setTelegram("check")
     } catch (error) {
       console.error('Login error:', error);
       setIsLoading(false);
@@ -29,8 +41,13 @@ export default function Authorization() {
   };
   useEffect(() => {
     const urlUsername = searchParams.get('username');
+    if (useAuthStore.getState().accessToken){
+      navigate('/bots');
+      return;
+    }
     if (urlUsername && !hasLoggedIn.current) {
       hasLoggedIn.current = true;
+      setTelegram("check")
       setUsername(urlUsername);
       handleLogin(urlUsername);
     }
@@ -63,21 +80,33 @@ export default function Authorization() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
+        {error && (
+            <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md flex items-center gap-2">
+              <AlertCircle size={20} />
+              <p>Use <a target="_blank" rel="noopener noreferrer" href="https://t.me/botgen_official_bot">@botgen_official_bot</a> to register</p>
+            </div>
+        )}
+        {telegram && (
+            <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-md flex items-center gap-2">
+              <AlertCircle size={20} />
+              {'Click "Authorize" in Telegram bot'}
+            </div>
+        )}
         <h1 className="text-2xl font-bold mb-6 text-center">BotGen Login</h1>
         <div className="space-y-4">
           <input
             type="text"
             value={username}
+            disabled={isLoading}
             onChange={(e) => {
               const value = e.target.value;
-              setUsername(value);
-              // if (value.startsWith('@') || value === '') {
-              //   setUsername(value);
-              // } else {
-              //   setUsername('@' + value);
-              // }
+              if (value.startsWith('@')) {
+                setUsername(value.slice(1));
+              } else {
+                setUsername(value);
+              }
             }}
-            placeholder="@username"
+            placeholder="username"
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button

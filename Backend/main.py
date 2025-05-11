@@ -1,15 +1,22 @@
 import asyncio
+import logging
 from contextlib import asynccontextmanager
 
-import uvicorn
+from fastapi import Depends
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import Depends
 
-from config import session
 from routes import auth, bots, products
-from services.auth_service import verify_token
-from services.listener_service import start_consumer
+from service.auth_service import verify_token
+from service.listener_service import start_consumer
+from utils.config import session
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
+
+
 
 @asynccontextmanager
 async def lifespan(fastapp: FastAPI):
@@ -18,37 +25,19 @@ async def lifespan(fastapp: FastAPI):
     await session.close()
     task.cancel()
 
+
 app = FastAPI(
     dependencies=[Depends(verify_token)],
     lifespan=lifespan
 )
 
-# app.add_middleware(
-#     CORSMiddleware,
-#     # allow_origin_regex="http://localhost:5173/*",
-#     allow_origin_regex="http://*",
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-#
-# )
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
-    allow_methods=["*"],  # Allow all HTTP methods
-    allow_headers=["*"],  # Allow all headers
+    allow_origins=["https://botgen-constructor.ru/api/*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(auth.router)
 app.include_router(bots.router)
 app.include_router(products.router)
-
-
-
-
-# if __name__ == '__main__':
-#     uvicorn.run(app, host="0.0.0.0", port=8000)
-#     asyncio.run(start_consumer())
-#     print("gag")
-

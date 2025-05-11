@@ -9,6 +9,7 @@ import {
   Package,
   X,
   Edit2,
+  Trash2,
   ArrowUp,
   ArrowDown,
   MessageSquare,
@@ -29,6 +30,7 @@ export default function Constructor() {
   const [editingStageName, setEditingStageName] = useState<string | null>(null);
   const [newName, setNewName] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<boolean | null>(null);
 
   useEffect(() => {
     const fetchBotData = async () => {
@@ -48,6 +50,7 @@ export default function Constructor() {
   }, [botId]);
 
   const handleAddDialog = () => {
+    setSuccess(false);
     const newDialogId = `dialog-${dialogOrder.length}`;
     setDialogs({
       ...dialogs,
@@ -59,6 +62,7 @@ export default function Constructor() {
   };
 
   const handleAddStage = (dialogId: string) => {
+    setSuccess(false);
     const dialog = dialogs[dialogId];
     const newStageId = `stage-${Object.keys(dialog.stages).length}`;
     setDialogs({
@@ -80,7 +84,34 @@ export default function Constructor() {
     });
   };
 
+  const handleDeleteDialog = (dialogId: string) => {
+    setSuccess(false);
+    console.log(dialogs);
+    console.log(dialogOrder);
+    delete dialogs[dialogId];
+    dialogOrder.splice(dialogOrder.indexOf(dialogId), 1);
+    // delete dialogOrder[dialogOrder.indexOf(dialogId)];
+    // dialogOrder.filter(item => item !== dialogId)
+    console.log(dialogs);
+    console.log(dialogOrder);
+    setSelectedDialog(null);
+    setDialogs({
+      ...dialogs
+    });
+
+  };
+
+  const handleDeleteStage = (dialogId: string, stageId: string) => {
+    setSuccess(false);
+    const stages = dialogs[dialogId].stages;
+    delete stages[stageId];
+    setDialogs({
+      ...dialogs
+    });
+  };
+
   const handleMoveDialog = (index: number, direction: 'up' | 'down') => {
+    setSuccess(false);
     const newOrder = [...dialogOrder];
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     [newOrder[index], newOrder[newIndex]] = [newOrder[newIndex], newOrder[index]];
@@ -92,6 +123,7 @@ export default function Constructor() {
       stageId: string,
       direction: 'up' | 'down'
   ) => {
+    setSuccess(false);
     const dialog = dialogs[dialogId];
     const stageOrder = Object.keys(dialog.stages);
     const currentIndex = stageOrder.indexOf(stageId);
@@ -118,6 +150,7 @@ export default function Constructor() {
   };
 
   const handleDialogNameChange = (oldName: string) => {
+    setSuccess(false);
     if (!newName || newName === oldName) {
       setEditingDialogName(null);
       setNewName('');
@@ -146,6 +179,7 @@ export default function Constructor() {
   };
 
   const handleStageNameChange = (dialogId: string, oldName: string) => {
+    setSuccess(false);
     if (!newName || newName === oldName) {
       setEditingStageName(null);
       setNewName('');
@@ -199,6 +233,7 @@ export default function Constructor() {
       stageId: string,
       type: Stage['type']
   ) => {
+    setSuccess(false);
     const newStage: Stage = {
       type,
       keyboard: dialogs[dialogId].stages[stageId].keyboard,
@@ -239,6 +274,7 @@ export default function Constructor() {
       dialogId: string,
       stageId: string
   ) => {
+    setSuccess(false);
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -268,6 +304,7 @@ export default function Constructor() {
   };
 
   const handleAddButton = (dialogId: string, stageId: string) => {
+    setSuccess(false);
     const stage = dialogs[dialogId].stages[stageId];
     const buttonId = `option-${Object.keys(stage.keyboard.buttons).length}`;
     const newButton: Button = {
@@ -301,6 +338,7 @@ export default function Constructor() {
       buttonId: string,
       hasCondition: boolean
   ) => {
+    setSuccess(false);
     const button = dialogs[dialogId].stages[stageId].keyboard.buttons[buttonId];
 
     if (hasCondition) {
@@ -368,7 +406,8 @@ export default function Constructor() {
         },
         body: JSON.stringify({ dialogs: orderedDialogs }),
       });
-      navigate('/bots');
+      setSuccess(true)
+      // navigate('/bots');
     } catch (error) {
       console.error('Error saving bot:', error);
     }
@@ -381,6 +420,12 @@ export default function Constructor() {
               <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md flex items-center gap-2">
                 <AlertCircle size={20} />
                 {error}
+              </div>
+          )}
+          {success && (
+              <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-md flex items-center gap-2">
+                <AlertCircle size={20} />
+                {'Bot is saved'}
               </div>
           )}
           <div className="flex justify-between items-center mb-8">
@@ -472,6 +517,17 @@ export default function Constructor() {
                                   <Edit2 size={14} />
                                 </button>
                             )}
+                            {editingDialogName !== dialogId && (
+                                <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteDialog(dialogId);
+                                    }}
+                                    className="p-1 text-gray-500 hover:text-blue-500"
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                            )}
                           </div>
                         </div>
                         {selectedDialog === dialogId && (
@@ -556,6 +612,17 @@ export default function Constructor() {
                                                   className="p-1 text-gray-500 hover:text-blue-500"
                                               >
                                                 <Edit2 size={12} />
+                                              </button>
+                                          )}
+                                          {editingStageName !== stageId && (
+                                              <button
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeleteStage(dialogId, stageId);
+                                                  }}
+                                                  className="p-1 text-gray-500 hover:text-blue-500"
+                                              >
+                                                <Trash2 size={12} />
                                               </button>
                                           )}
                                         </div>

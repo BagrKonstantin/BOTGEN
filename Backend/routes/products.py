@@ -2,14 +2,14 @@ import json
 from typing import Union
 
 from fastapi import APIRouter, Header, UploadFile, File, HTTPException
-from sqlalchemy import select, Sequence
+from sqlalchemy import select
 
-from config import session
-from schemas.models import Bot, ProductType, Product
-from services.auth_service import  is_bot_owner, get_tel_id_from_header
-from services.bot_service import send_file
+from service.auth_service import is_bot_owner, get_tel_id_from_header
+from service.telegram_service import send_file
+from utils.config import session
+from utils.models import Bot, ProductType, Product
 
-router = APIRouter()
+router = APIRouter(prefix="/api")
 
 async def get_product(product_id: int) -> Product:
     product: Union[Product, None] = await session.get(Product, product_id)

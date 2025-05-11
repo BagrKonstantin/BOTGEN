@@ -1,8 +1,7 @@
-import asyncio
-import json
+from aio_pika import connect_robust, Message
+
 from utils.config import RABBITMQ_URL
 
-from aio_pika import connect_robust, Message
 
 class AsyncRabbitSender:
     def __init__(self, amqp_url=RABBITMQ_URL, queue_name="my_queue"):
@@ -31,15 +30,3 @@ class AsyncRabbitSender:
 
     async def close(self):
         await self.connection.close()
-
-# async def main(sender: AsyncRabbitSender):
-#     await sender.send(json.dumps({
-#         "type": "auth",
-#         "is_approved": True,
-#         "user_id": 171303452,
-#         "token": "F8KNTF0CKPHU1JS04THNVKWXAFT0R2O4DM8LYCH4"
-#     }))
-#
-# if __name__ == "__main__":
-#     sender = AsyncRabbitSender()
-#     asyncio.run(main(sender))

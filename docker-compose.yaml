@@ -1,79 +1,70 @@
-version: "3"
-
 services:
   user-db:
     image: postgres:13.3
     environment:
-      POSTGRES_DB: UserData
+      POSTGRES_DB: ${POSTGRESQL_DATABASE}
       POSTGRES_USER: ${POSTGRESQL_USERNAME}
       POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
       PGDATA: "/var/lib/postgresql/data/pgdata"
     restart: unless-stopped
     ports:
-      - "5432:5432"
-    volumes:
-      - ./Database/init/:/docker-entrypoint-initdb.d/
-      - ./Database/db/:/var/lib/postgresql/data
+      - "127.0.0.1:${POSTGRESQL_PORT}:${POSTGRESQL_PORT}"
 
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672"
+      - "15672"
     restart: unless-stopped
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-    volumes:
-      - ./RabbitMQ:/var/lib/rabbitmq
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+
+  frontend:
+    build:
+      context: ./frontend5
+      dockerfile: Dockerfile
+    ports:
+      - "443:443"
+      - "80:80"
+    restart: unless-stopped
 
   backend:
     build:
       context: ./Backend
     container_name: backend_service
-    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    command: uvicorn main:app --host=0.0.0.0 --port ${BACKEND_PORT}
     env_file:
       - .env
     environment:
       POSTGRESQL_HOST: user-db
       RABBITMQ_HOST: rabbitmq
       HOSTING_HOST: hosting
-    volumes:
-      - ./Backend:/app
+      HOSTING_PORT: ${HOSTING_PORT}
     ports:
-      - "8000:8000"
-#    restart: unless-stopped
+      - "127.0.0.1:${BACKEND_PORT}:${BACKEND_PORT}"
+    restart: unless-stopped
+    depends_on:
+      - user-db
+      - rabbitmq
 
   hosting:
     build:
       context: ./Hosting
     container_name: hosting_service
-    command: uvicorn main:app --host 0.0.0.0 --port 8080
+    command: uvicorn main:app --port ${HOSTING_PORT}
     env_file:
       - .env
     environment:
       POSTGRESQL_HOST: user-db
       RABBITMQ_HOST: rabbitmq
-    volumes:
-      - ./Hosting:/app
     ports:
-      - "8080:8080"
+      - "${HOSTING_PORT}"
     depends_on:
       - user-db
       - rabbitmq
-  #    restart: unless-stopped
-
-  frontend:
-    build:
-      context: ./frontend5
-      dockerfile: Dockerfile
-    environment:
-      VITE_API_URL: 45.9.75.13
-    ports:
-      - "80:80"  # Nginx serves on 80, exposed to 3000
-    depends_on:
-      - backend
+    restart: unless-stopped
 
   telegrambot:
     build:
@@ -85,6 +76,6 @@ services:
     environment:
       POSTGRESQL_HOST: user-db
       RABBITMQ_HOST: rabbitmq
-    volumes:
-      - ./TelegramBot:/app
-#    restart: always
+    restart: unless-stopped
+    depends_on:
+      - rabbitmq

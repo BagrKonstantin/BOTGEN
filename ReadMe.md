@@ -5,7 +5,7 @@ Easily create and deploy Telegram bots using a minimalistic interface. No coding
 ## 🔗 Quick Links
 
 - **Telegram Bot:** [@botgen_official_bot](https://t.me/botgen_official_bot)
-- **Web Constructor:** [BotGen](http://185.128.107.147/)
+- **Web Constructor:** [BotGen](https://botgen-constructor.ru/)
 
 ## 🚀 Features
 

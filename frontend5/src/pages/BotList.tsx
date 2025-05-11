@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Edit, Trash2, Play, Square, Package, Settings } from 'lucide-react';
+import {Plus, Edit, Trash2, Play, Square, Package, Settings, AlertCircle} from 'lucide-react';
 import { API_BASE_URL, endpoints } from '../config/api';
 import { Bot } from '../types';
 import { fetchWithAuth } from '../utils/api';
@@ -14,6 +14,7 @@ export default function BotList() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const navigate = useNavigate();
   // const { tokenType, accessToken } = useAuthStore();
+  const [error, setError] = useState<string | null>(null);
 
   const fetchBots = async () => {
     try {
@@ -64,9 +65,14 @@ export default function BotList() {
   const handleLaunchStop = async (botId: number, isLaunched: boolean) => {
     try {
       const endpoint = endpoints.launchBot(botId);
-      await fetchWithAuth(endpoint, {
+      const response = await fetchWithAuth(endpoint, {
         method: 'POST',
       });
+      if (!response.ok) {
+        setError((await response.json()).detail);
+      } else
+        setError(null)
+
       await fetchBots();
     } catch (error) {
       console.error('Error updating bot status:', error);
@@ -76,6 +82,12 @@ export default function BotList() {
   return (
       <div className="min-h-screen bg-gray-100 p-8">
         <div className="max-w-4xl mx-auto">
+          {error && (
+              <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md flex items-center gap-2">
+                <AlertCircle size={20} />
+                {error}
+              </div>
+          )}
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold">Your Bots</h1>
             <button

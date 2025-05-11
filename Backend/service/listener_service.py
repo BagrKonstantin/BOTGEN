@@ -5,10 +5,10 @@ from aio_pika import connect_robust
 from sqlalchemy import select
 
 from routes.auth import users_dic
-from config import QUEUE_NAME, RABBITMQ_URL
-from schemas.models import BotUser, Bot, User
-from config import session
-from services.bot_service import send_new_user_message
+from service.telegram_service import send_new_user_message
+from utils.config import QUEUE_NAME, RABBITMQ_URL
+from utils.config import session
+from utils.models import BotUser, Bot, User
 
 
 async def process_message(message):

@@ -1,5 +1,6 @@
-from utils.Callback import Callback
 from graph.Node import Node
+from graph.Stages import ProductStage
+from utils.Callback import Callback
 
 
 # def is_cond(conditions: dict, callback) -> bool:
@@ -48,10 +49,8 @@ class Graph:
     def __init__(self, data: dict):
         self.data = data
         self.all_nodes = dict()
+        self.products: list[ProductStage] = list()
         self.start: Node = Node("0", self.get_cond(data["0"]), self.data["0"])
-
-        # print("ALL NODES", [str(i) for i in self.all_nodes.values()])
-
 
     def get_cond(self, options) -> dict:
         cond_old = {}
@@ -60,12 +59,15 @@ class Graph:
             if stage not in self.all_nodes:
                 node = Node(stage, self.get_cond(self.data[stage]), self.data[stage])
                 self.all_nodes[stage] = node
-                # print(stage, node)
+                if type(node.stager) == ProductStage:
+                    self.products.append(node.stager)
 
             if "if" in to:
                 if to["if"]["to"] not in self.all_nodes:
                     node = Node(to["if"]["to"], self.get_cond(self.data[to["if"]["to"]]), self.data[to["if"]["to"]])
                     self.all_nodes[to["if"]["to"]] = node
+                    if type(node.stager) == ProductStage:
+                        self.products.append(node.stager)
             cond_old[option] = create_condition(to, self.all_nodes)
         return cond_old
 
@@ -79,6 +81,5 @@ class Graph:
                 return node
             node = next_node
         n = node.get_next_node(callback)
-        # print("STAGER", n.stager.text)
         return n
 

@@ -1,9 +1,11 @@
-from telebot import TeleBot
 import random
 import string
+
+from telebot import TeleBot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, PhotoSize, LabeledPrice, Message, File
-from schemas.models import User
-from config import TELEGRAM_TOKEN
+
+from utils.config import TELEGRAM_TOKEN, SUBSCRIPTION_PRICE
+from utils.models import User
 
 bot = TeleBot(token=TELEGRAM_TOKEN)
 
@@ -11,7 +13,6 @@ bot = TeleBot(token=TELEGRAM_TOKEN)
 def make_keyboard(token: str):
     keyboard = InlineKeyboardMarkup()
     keyboard.add(InlineKeyboardButton(text="🔓 Authorize", callback_data=f"auth_accept:{token}"))
-    #keyboard.add(InlineKeyboardButton(text="❌ Это не я", callback_data=f"auth_decline:{token}"))
 
     return keyboard
 
@@ -52,15 +53,25 @@ def send_new_user_message(bot_token, tel_id):
 
 def send_payment(tel_id):
     prices = [
-        LabeledPrice(label="XTR", amount=1)
+        LabeledPrice(label="XTR", amount=SUBSCRIPTION_PRICE)
     ]
-
-    keyboard = InlineKeyboardMarkup()
-    keyboard.add(InlineKeyboardButton(text=f"Оплатить {1} XTR", pay=True))
     bot.send_invoice(
         chat_id=tel_id,
-        title="Хостинг",
-        description="Оплата хостинга на месяц",
+        title="Bot Hosting Subscription",
+        description="""Host your Telegram bot 24/7 with BotGen!
+This subscription includes:
+
+🚀 Instant bot deployment
+
+🔄 Auto-restart on failure
+
+🛠 Easy updates through the web constructor
+
+💬 Message delivery via high-speed queues
+
+🧠 Zero code needed – manage everything visually
+
+Stay focused on building, we’ll handle the hosting.""",
         prices=prices,
         provider_token="",
         invoice_payload=f"hosting:{tel_id}",

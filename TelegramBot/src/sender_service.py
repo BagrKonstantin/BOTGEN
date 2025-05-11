@@ -1,4 +1,4 @@
-from config import RABBITMQ_URL
+from src.config import RABBITMQ_URL
 from aio_pika import connect_robust, Message
 
 class AsyncRabbitSender:

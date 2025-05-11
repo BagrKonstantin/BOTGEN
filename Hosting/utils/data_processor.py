@@ -1,23 +1,21 @@
 import json
+
 from utils.encrypter import line
+
 
 def process_raw(bot: str):
 
     dialog_characters = str(line)
 
 
-
     data = json.loads(bot)
     dialogs = data["dialogs"]
-    dialog_mapper = dict()
     for dialog_key, dialog_value in dialogs.items():
-        #dialog_mapper[dialog_key] = dialog_characters[0]
-
         dialog_value["char"] = dialog_characters[0]
         dialog_characters = dialog_characters[1:]
 
         stage_mapper = dict()
-        stages = dialog_value["stages"]
+        stages: dict = dialog_value["stages"]
         options_mapper = dict()
         stages_characters = str(line)
         for stage_key, stage_value in stages.items():

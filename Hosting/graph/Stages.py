@@ -24,7 +24,7 @@ class AbstractStage:
             keyboard.add(InlineKeyboardButton(text=text, callback_data=button_callback))
         if self.back_button and self.stage != 0:
             button_callback = callback.get_callback_string(self.stage, '~')
-            keyboard.add(InlineKeyboardButton(text="◀️Назад", callback_data=button_callback))
+            keyboard.add(InlineKeyboardButton(text="◀️Back", callback_data=button_callback))
         return keyboard
 
     @staticmethod
@@ -48,7 +48,8 @@ class TextStage(AbstractStage):
             text=self.text,
             reply_markup=self.make_keyboard(callback),
         )
-        await bot.delete_message(callback.chat_id, callback.mes_id)
+        if self.stage != 0:
+            await bot.delete_message(callback.chat_id, callback.mes_id)
 
 class ImageStage(AbstractStage):
     def __init__(self, stage, data):
@@ -63,7 +64,8 @@ class ImageStage(AbstractStage):
             caption=self.text,
             reply_markup=self.make_keyboard(callback),
         )
-        await bot.delete_message(callback.chat_id, callback.mes_id)
+        if self.stage != 0:
+            await bot.delete_message(callback.chat_id, callback.mes_id)
 
 
 class ProductStage(AbstractStage):
@@ -72,20 +74,35 @@ class ProductStage(AbstractStage):
         self.title = data["product"]["title"]
         self.description = data["product"]["description"]
         self.price = data["product"]["price"]
-        if "image_url" in data["product"]:
-            self.image_url = data["product"]["image_url"]
+        self.image_url = data["product"]["image_url"] if "image_url" in data["product"] else None
+
+    async def send_without_callback(self, bot: AsyncTeleBot, tel_id: int):
+        prices = [
+            LabeledPrice(label="XTR", amount=self.price)
+        ]
+
+        await bot.send_invoice(
+            chat_id=tel_id,
+            title=self.title,
+            description=self.description,
+            prices=prices,
+            provider_token="",
+            invoice_payload=self.title,
+            currency="XTR",
+            photo_url=self.image_url
+        )
 
     async def send(self, callback: Callback, bot: AsyncTeleBot):
         prices = [
             LabeledPrice(label="XTR", amount=self.price)
         ]
 
-
         keyboard = InlineKeyboardMarkup()
-        keyboard.add(InlineKeyboardButton(text=f"Оплатить {self.price} XTR", pay=True))
+        keyboard.add(InlineKeyboardButton(text=f"Purchase {self.price} XTR", pay=True))
         if self.back_button:
             button_callback = callback.get_callback_string(self.stage, '~')
-            keyboard.add(InlineKeyboardButton(text="Назад", callback_data=button_callback))
+            keyboard.add(InlineKeyboardButton(text="◀️Back", callback_data=button_callback))
+
         await bot.send_invoice(
             chat_id=callback.chat_id,
             title=self.title,
@@ -95,7 +112,7 @@ class ProductStage(AbstractStage):
             invoice_payload=self.title,
             currency="XTR",
             reply_markup=keyboard,
-            # photo_url=self.image_url TODO
-
+            photo_url=self.image_url
         )
-        await bot.delete_message(callback.chat_id, callback.mes_id)
+        if self.stage != 0:
+            await bot.delete_message(callback.chat_id, callback.mes_id)
