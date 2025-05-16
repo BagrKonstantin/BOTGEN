@@ -148,7 +148,6 @@ async def auth_query(call: CallbackQuery):
         "user_id": call.from_user.id,
         "token": token
     }))
-    print("sent")
     await bot.answer_callback_query(call.id, ("You successfully authorized" if is_approved else "Authorization canceled"))
     await bot.delete_message(call.message.chat.id, call.message.message_id)
 

@@ -9,7 +9,7 @@ from telebot.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeybo
 
 from graph.Graph import Graph
 from graph.Stages import ProductStage
-from service.sender_service import AsyncRabbitSender
+from services.sender_service import AsyncRabbitSender
 from utils.Callback import Callback
 from utils.config import session
 from utils.data_processor import process_raw

@@ -2,6 +2,7 @@ import asyncio
 import logging
 from asyncio.log import logger
 from contextlib import asynccontextmanager
+from datetime import datetime
 
 import telebot.asyncio_helper
 from fastapi import FastAPI, HTTPException
@@ -9,7 +10,7 @@ from fastapi import FastAPI, HTTPException
 from graph.AbstractBot import AbstractBot
 from services.sender_service import AsyncRabbitSender
 from utils.config import session
-from utils.models import Bot
+from utils.models import Bot, Subscription
 import traceback
 
 running_bots: dict[int, asyncio.Task] = {}
@@ -52,7 +53,10 @@ async def lifespan(fastapp: FastAPI):
     try:
         bots = session.query(Bot).filter(Bot.is_launched == True).all()
         for bot in bots:
-            await run_bot(bot)
+            subscription = session.query(Subscription).filter(Subscription.user_id == bot.user_id).one_or_none()
+            if subscription is not None:
+                if subscription.expiration_date >= datetime.today():
+                    await run_bot(bot)
     except Exception as e:
         logger.error(e)
     await sender.connect()

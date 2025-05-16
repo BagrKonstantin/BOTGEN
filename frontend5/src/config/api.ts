@@ -1,6 +1,5 @@
-const api_host = "botgen-constructor.ru/api"
+export const API_BASE_URL = import.meta.env.VITE_API_URL
 
-export const API_BASE_URL = `https://${api_host}`;
 
 export const endpoints = {
   login: (username: string) => `/login/${username}`,

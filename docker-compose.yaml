@@ -21,15 +21,6 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
 
-  frontend:
-    build:
-      context: ./frontend5
-      dockerfile: Dockerfile
-    ports:
-      - "443:443"
-      - "80:80"
-    restart: unless-stopped
-
   backend:
     build:
       context: ./Backend
@@ -53,14 +44,14 @@ services:
     build:
       context: ./Hosting
     container_name: hosting_service
-    command: uvicorn main:app --port ${HOSTING_PORT}
+    command: uvicorn main:app --host=0.0.0.0 --port ${HOSTING_PORT}
     env_file:
       - .env
     environment:
       POSTGRESQL_HOST: user-db
       RABBITMQ_HOST: rabbitmq
     ports:
-      - "${HOSTING_PORT}"
+      - "127.0.0.1:${HOSTING_PORT}:${HOSTING_PORT}"
     depends_on:
       - user-db
       - rabbitmq

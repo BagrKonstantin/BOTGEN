@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import declarative_base
@@ -49,5 +49,10 @@ class Product(Base):
         return f"{self.product_id, self.file_id, self.is_sold}"
 
 
-# bot = session.query(Bot).filter(Bot.bot_id == 22).one()
-# print(bot.user.tel_id)
+class Subscription(Base):
+    __tablename__ = "subscriptions"
+
+    subscription_id = Column(Integer(), primary_key=True)
+    user_id = Column(Integer())
+    start_date = Column(DateTime())
+    expiration_date = Column(DateTime())
